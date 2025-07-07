@@ -5,12 +5,13 @@ import time
 TOKEN = "7697856704:AAERMlnyRYA9TR_U-F1EDcqwgW0M8pbH3yA"
 API_URL = f"https://api.telegram.org/bot{TOKEN}"
 CHANNEL_USERNAME = "@spiritychannel"
-ACCESS_CODE = "P3X7V9Q2L8ZD5NM1KT4J"
+ACCESS_CODE = "P3X7V9Q2L8ZD5NM1KT4J
+"
 APP_URL = "https://spirityx.github.io/Ghostpqqb-/"
 
 user_states = {}
 
-# === ENVOI DE MESSAGES ===
+# === ENVOI DE MESSAGE ===
 def send_message(chat_id, text, reply_markup=None):
     payload = {
         "chat_id": chat_id,
@@ -19,23 +20,34 @@ def send_message(chat_id, text, reply_markup=None):
     }
     if reply_markup:
         payload["reply_markup"] = reply_markup
-    requests.post(f"{API_URL}/sendMessage", json=payload)
+    try:
+        requests.post(f"{API_URL}/sendMessage", json=payload)
+    except Exception as e:
+        print(f"Erreur d'envoi : {e}")
 
+# === RÉCUPÉRATION DES MESSAGES ===
 def get_updates(offset=None):
-    response = requests.get(f"{API_URL}/getUpdates", params={"timeout": 100, "offset": offset})
-    return response.json()
+    try:
+        response = requests.get(f"{API_URL}/getUpdates", params={"timeout": 100, "offset": offset})
+        return response.json()
+    except:
+        return {}
 
+# === VÉRIFICATION ABONNEMENT ===
 def check_user_in_channel(user_id):
-    res = requests.get(f"{API_URL}/getChatMember", params={
-        "chat_id": CHANNEL_USERNAME,
-        "user_id": user_id
-    }).json()
-    status = res.get("result", {}).get("status")
-    return status in ["member", "creator", "administrator"]
+    try:
+        res = requests.get(f"{API_URL}/getChatMember", params={
+            "chat_id": CHANNEL_USERNAME,
+            "user_id": user_id
+        }).json()
+        status = res.get("result", {}).get("status", "")
+        return status in ["member", "administrator", "creator"]
+    except:
+        return False
 
-# === MAIN BOT ===
+# === FONCTION PRINCIPALE ===
 def main():
-    print("🤖 Bot lancé.")
+    print("✅ Bot lancé avec succès.")
     offset = None
 
     while True:
@@ -43,7 +55,6 @@ def main():
         if updates.get("ok"):
             for update in updates["result"]:
                 offset = update["update_id"] + 1
-
                 message = update.get("message")
                 callback = update.get("callback_query")
 
@@ -56,97 +67,51 @@ def main():
                     if text == "/start":
                         keyboard = {
                             "inline_keyboard": [[
-                                {"text": "✅ 𝙰𝚅𝙰𝙽𝙲𝙴𝚁😈", "callback_data": "continue"}
+                                {"text": "✅ 𝙰𝚅𝙰𝙽𝙲𝙴𝚁 😈", "callback_data": "continue"}
                             ]]
                         }
-                        welcome_message = (
+                        welcome = (
                             "<b>👋 Bienvenue dans ton nouveau QG Aviator !</b>\n"
-                            "🎮 <b>Ici, c’est pas du hasard… c’est de la stratégie.</b> 🧠💥\n\n"
-                            "<b>🎯 Objectif ?</b>\n"
-                            "🚀 Jouer plus malin\n"
-                            "📊 Prédire les bons coups\n"
-                            "🛑 Éviter les mauvaises séries\n"
-                            "💸 Et choper des multiplicateurs propres 🔥\n\n"
-                            "<b>🤖 Ce bot, c’est pas un mythe.</b>\n"
-                            "C’est de l’analyse intelligente et hybride :\n"
-                            "🔍 Lecture du seed\n"
-                            "🔁 Reconnaissance de motifs\n"
-                            "📈 Détection des cycles\n"
-                            "💡 Résultat ? Des prédictions nettes, calibrées, puissantes.\n\n"
-                            "<b>⚙️ 3 modes adaptés à ton flow :</b>\n"
-                            "⚡ Rapide – pour aller droit au but\n"
-                            "⚖️ Standard – le bon équilibre, simple et fiable\n"
-                            "🔬 Approfondi – ultra précis pour ceux qui veulent tout analyser\n\n"
-                            "<b>🎚️ Et tu choisis ton niveau de risque :</b>\n"
-                            "🟢 Faible — sécurisé\n"
-                            "🟡 Moyen — équilibré\n"
-                            "🔴 Élevé — agressif\n\n"
-                            "🚫 À savoir :\n"
-                            "<b>Ce bot n’est pas magique.</b> ❌\n"
-                            "Il te donne un avantage, pas une garantie.\n"
-                            "👉 Joue avec la tête. Gère tes mises. Sois smart. 💼🧠\n\n"
-                            "🔥 <b>Prêt à passer en mode joueur stratège ?</b>\n"
-                            "Alors installe-toi...\n"
-                            "<b>T’es officiellement dans le game.</b> 🎮💣"
+                            "🎯 Objectif : Prédire intelligemment.\n"
+                            "📡 Analyse, seed, cycles, signaux = stratégie.\n"
+                            "🚀 Prêt à dominer le ciel ? Clique ci-dessous."
                         )
-                        send_message(chat_id, welcome_message, reply_markup=keyboard)
+                        send_message(chat_id, welcome, reply_markup=keyboard)
 
                     elif state == "awaiting_join":
                         if check_user_in_channel(user_id):
-                            send_message(chat_id,
-                                "✅ <b>Tu as bien rejoint le canal !</b>\n\n"
-                                "💸 <b>Étape suivante :</b> Pour débloquer l’accès complet au bot, tu dois activer ton accès officiel.\n\n"
-                                "📲 <b>Contacte ce WhatsApp :</b> +22603996469\n"
-                                "👤 <b>Ou envoie un message sur Telegram :</b> @@ANonyXMousHack\n\n"
-                                "🧾 Une fois le paiement validé, tu recevras ton <b>code d'accès privé</b>.\n"
-                                "🔐 <b>Envoie ce code ici pour activer le bot.</b>\n\n"
-                                "🚀 Let’s go, c’est maintenant que tout commence."
-                            )
                             user_states[user_id] = "awaiting_code"
+                            send_message(chat_id,
+                                "✅ Tu as bien rejoint <b>@spiritychannel</b> !\n\n"
+                                "🔐 Pour activer ton accès au bot :\n"
+                                "Envoie ici ton <b>code d'accès privé</b>.\n\n"
+                                "📲 Si tu ne l'as pas encore :\n"
+                                "WhatsApp : +22603996469\n"
+                                "Telegram : @ANonyXMousHack"
+                            )
                         else:
                             send_message(chat_id,
-                                "🚨 <b>Accès réservé aux vrais stratèges.</b>\n\n"
-                                "Tu veux débloquer le bot ? Voici la prochaine étape :\n\n"
-                                "📲 <b>Étape cruciale :</b> rejoins maintenant le QG tactique :\n"
-                                "👉 <b>@spiritychannel</b>\n\n"
-                                "🎯 C’est là que tout commence :\n"
-                                "🔐 Accès prioritaire aux prédictions\n"
-                                "📡 Signaux en temps réel\n"
-                                "🧠 Conseils d’experts\n\n"
-                                "<b>⚠️ Obligatoire pour activer le bot.</b>\n\n"
-                                "✅ Une fois dans le QG, reviens ici et envoie n’importe quel message pour lancer la machine.\n\n"
-                                "💡 Pas de canal = pas d’analyse = pas de stratégie.\n"
-                                "🔥 Tu veux rester random, ou passer en mode contrôle total ?\n"
-                                "Le choix est à toi."
+                                "🚫 Tu dois rejoindre le canal : <b>@spiritychannel</b>\n\n"
+                                "📡 Infos, signaux, stratégies en direct.\n"
+                                "✅ Une fois fait, reviens ici et envoie n’importe quel message pour continuer."
                             )
 
                     elif state == "awaiting_code":
                         if text == ACCESS_CODE:
-                            send_message(chat_id,
-                                "🔓 <b>Accès validé !</b>\n\n"
-                                "🚀 Tu viens officiellement de débloquer l’outil stratégique ultime.\n"
-                                "🎯 Place au vrai game maintenant : cycles, prédictions, précision chirurgicale.\n\n"
-                                "🔥 Appuie sur le bouton ci-dessous et entre dans l’arène."
-                            )
-
+                            user_states[user_id] = "granted"
+                            send_message(chat_id, "🔓 <b>Accès validé !</b> Tu peux maintenant ouvrir l’application.")
                             menu_keyboard = {
                                 "inline_keyboard": [[
-                                    {"text": "🚀 𝙾𝚄𝚅𝚁𝙸𝚁 𝙻𝙰 𝙱𝙾𝙼𝙱𝙴", "web_app": {"url": APP_URL}}
+                                    {"text": "🚀 𝙾𝚄𝚅𝚁𝙸𝚁 𝙻'𝙰𝙿𝙿", "web_app": {"url": APP_URL}}
                                 ]]
                             }
-                            send_message(chat_id,
-                                "✅ <b>Accès accordé !</b>\nClique sur le bouton ci-dessous pour ouvrir l’application :",
-                                reply_markup=menu_keyboard
-                            )
-                            user_states[user_id] = "granted"
+                            send_message(chat_id, "👇 Clique ici pour accéder à l'outil :", reply_markup=menu_keyboard)
                         else:
                             send_message(chat_id,
                                 "❌ <b>Code incorrect.</b>\n\n"
-                                "💡 Ce code n’est pas valide ou n’a pas encore été activé.\n"
-                                "👉 Pour obtenir ton accès officiel, contacte :\n"
-                                "📲 WhatsApp : +22603996469\n"
-                                "📩 Telegram : @ANonyXMousHack \n\n"
-                                "🧾 Une fois le paiement validé, tu recevras ton <b>code privé</b> ici."
+                                "👉 Pour recevoir le bon code, contacte :\n"
+                                "WhatsApp : +22603996469\n"
+                                "Telegram : @ANonyXMousHack"
                             )
 
                 elif callback:
@@ -159,11 +124,9 @@ def main():
                     if data == "continue":
                         user_states[user_id] = "awaiting_join"
                         send_message(chat_id,
-                            "📢 Pour continuer, suis bien cette étape :\n\n"
-                            "➡️ Rejoins le canal officiel : @spiritychannel\n\n"
-                            "✅ Ensuite, reviens ici et envoie n’importe quel message pour activer le bot.\n\n"
-                            "🛠️ C’est obligatoire pour débloquer les prédictions.\n\n"
-                            "🔥 Let’s go — on passe au niveau supérieur ! t.me/spiritychannel"
+                            "📢 Étape 1 : Rejoins le canal stratégique @spiritychannel\n\n"
+                            "📲 Une fois dedans, reviens ici et envoie n’importe quel message.\n"
+                            "🔐 Nécessaire pour débloquer le bot."
                         )
 
         time.sleep(1)
