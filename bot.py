@@ -5,7 +5,7 @@ import time
 TOKEN = "7697856704:AAERMlnyRYA9TR_U-F1EDcqwgW0M8pbH3yA"
 API_URL = f"https://api.telegram.org/bot{TOKEN}"
 CHANNEL_USERNAME = "@spiritychannel"
-ACCESS_CODE = "12345678"
+ACCESS_CODE = "P3X7V9Q2L8ZD5NM1KT4J"
 APP_URL = "https://spirityx.github.io/Ghostpqqb-/"
 
 user_states = {}
